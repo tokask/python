@@ -1,6 +1,0 @@
-#/usr/bin/python
-
-from mag3110 import *
-
-mag = Tk_MAG3110(1, 0x0e)
-
