@@ -6,7 +6,6 @@
  # =======================================================
 
 import smbus
-import time
 from tk_i2c import Tk_I2C
 
 OUT_X_MSB = 0x01
@@ -28,6 +27,7 @@ MRST_NRM = 0x80   # AUTO_MRST_EN + Normal Mode - data values are corrected by
 
 ADDR_MAG = 0x0e   # I2C adrress of mag3110 device.
 BUS = 1           # Check your system - For Raspberry Rev.2 = 1
+CALTMP = 29.5     # In RTemp() offset temperature.
 
 class Raw_MAG3110(object):
 
@@ -39,10 +39,24 @@ class Raw_MAG3110(object):
        self.i2c.write8(CTRL_REG2, MRST_RAW)
        self.i2c.write8(CTRL_REG1, OS_DR)   # Operation modes 
 
-   def read_Temp(self):
+   def StaAct(self, action):
+       "Put mag3110 in ACTIVE (1) or STANDBY (0) mode"
+       if action != 0 | action != 1:
+         return False 
+       register = self.i2c.readU8(CTRL_REG1)
+       if (action!=0) & (action != (register & 0x01)):
+         self.i2c.write8(CTRL_REG1, (register | 0x01))
+         return 1
+       elif action != (register & 0x01):
+         self.i2c.write8(CTRL_REG1, (register & 0xfe))
+         return 2
+       else:
+         return False       
+    
+   def rTemp(self):
        "Read temp from register 8-bit signed"
        temp = self.i2c.readS8(DIE_TEMP)
-       return temp
+       return (temp + CALTMP)
 
    def read_X16(self):
        "Read X mag from register 16-bit signed"
