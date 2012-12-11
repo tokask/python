@@ -1,4 +1,4 @@
 python
 ======
-I2C
-	Classe per i sensore MAG3110 
+I2c
+Mag3110
