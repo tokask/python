@@ -9,11 +9,15 @@ import smbus
 from tk_i2c import Tk_I2C
 
 OUT_X_MSB = 0x01
-OUT_X_LSB = 0X02
-OUT_Y_MSB = 0X03
-OUT_y_LSB = 0X04
-OUT_Z_MSB = 0X05
-OUT_Z_LSB = 0X06
+OUT_X_LSB = 0x02
+OUT_Y_MSB = 0x03
+OUT_y_LSB = 0x04
+OUT_Z_MSB = 0x05
+OUT_Z_LSB = 0x06
+
+OFF_X_MSB = 0x09
+OFF_Y_MSB = 0x0b 
+OFF_Z_MSB = 0x0d
 
 SYSMOD = 0x08
 DIE_TEMP = 0X0f
@@ -82,7 +86,43 @@ class Raw_MAG3110(object):
          return "01: ACTIVE mode, RAW data."
        elif sys == 2:
          return "10: ACTIVE mode, non-RAW user-corrected data."
-       return False 
+       return False
+   
+   def SetX16_Offset(self, list):
+       try:
+         self.i2c.bus.write_i2c_block_data(self.address, OFF_X_MSB, list)
+       except IOError, err:
+         print "Error accessing 0x%02X" % self.address
+         return -1
+
+   def readX16_Offset(self):
+       "Read X mag User Offset 16-bit signed"
+       X_offset = self.i2c.readS16(OFF_X_MSB)
+       return X_offset  
+
+   def SetY16_Offset(self, list):
+       try:
+         self.i2c.bus.write_i2c_block_data(self.address, OFF_Y_MSB, list)
+       except IOError, err:
+         print "Error accessing 0x%02X" % self.address
+         return -1
+
+   def readY16_Offset(self):
+       "Read Y mag User Offset 16-bit signed"
+       Y_offset = self.i2c.readS16(OFF_Y_MSB)
+       return Y_offset
+
+   def SetZ16_Offset(self, list):
+       try:
+         self.i2c.bus.write_i2c_block_data(self.address, OFF_Z_MSB, list)
+       except IOError, err:
+         print "Error accessing 0x%02X" % self.address
+         return -1
+
+   def readZ16_Offset(self):
+       "Read Z mag User Offset 16-bit signed"
+       Z_offset = self.i2c.readS16(OFF_Z_MSB)
+       return Z_offset
 
    def read_CTRLREG(self, reg):
        "Read Control register: 1 for REG1 and 2 for REG2."
